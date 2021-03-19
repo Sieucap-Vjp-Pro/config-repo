@@ -20,12 +20,10 @@ database:
   name: svp
   username: svp_admin
   password: Vippro@
-  driverClass: org.mariadb.jdbc.Driver
 
 spring:
   datasource:
-    url: jdbc:mariadb://${database.host}:${database.port}/${database.name}?createDatabaseIfNotExist=true&verifyServerCertificate=false&useSSL=false&requireSSL=false&useUnicode=yes&characterEncoding=UTF-8
-    driver-class-name: ${database.driverClass}
+    url: jdbc:postgresql://${database.host}:${database.port}/${database.name}
     username: ${database.username}
     password: ${database.password}
     jpa:
