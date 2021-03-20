@@ -1,0 +1,82 @@
+host: localhost
+
+server:
+  port: 8087
+
+eureka:
+  instance:
+    hostname: ${host}
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:8761/eureka/
+  server:
+    wait-time-in-ms-when-sync-empty: 3000
+
+database:
+  host: ${host}
+  port: 3306
+  name: kms
+  username: kms_admin
+  password: Metanet@
+  driverClass: org.mariadb.jdbc.Driver
+
+spring:
+  datasource:
+    url: jdbc:mariadb://${database.host}:${database.port}/${database.name}?createDatabaseIfNotExist=true&verifyServerCertificate=false&useSSL=false&requireSSL=false&useUnicode=yes&characterEncoding=UTF-8
+    driver-class-name: ${database.driverClass}
+    username: ${database.username}
+    password: ${database.password}
+    jpa:
+      database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+      hibernate:
+        ddl-auto: update
+    zipkin:
+      base-url: http://${host}:8085/
+
+feign:
+  hystrix:
+    enabled: true
+  client:
+    config:
+      default:
+        connectTimeout: 3000
+        readTimeout: 20000
+
+hystrix:
+  command:
+    default:
+      circuitBreaker:
+        sleepWindowInMilliseconds: 20000
+        requestVolumeThreshold: 6
+      execution:
+        isolation:
+          #          strategy: SEMAPHORE, no thread pool but timeout handling stops to work
+          strategy: THREAD
+          #          semaphore:
+          #            maxConcurrentRequests: 7
+          thread:
+            timeoutInMilliseconds: 5000
+  metrics:
+    rollingStats:
+      timeInMilliseconds: 60000
+  threadpool:
+    default:
+      # Maximum number of concurrent requests when using thread pools (Default: 10)
+      coreSize: 10
+      # Maximum LinkedBlockingQueue size - -1 for using SynchronousQueue (Default: -1)
+      maxQueueSize: 10
+      # Queue size rejection threshold (Default: 5)
+      queueSizeRejectionThreshold: 5
+#  cloud:
+#    stream:
+#      default:
+#        contentType: application/json
+#      kafka:
+#        binder:
+#          brokers: ${host}:9092
+#          zkNodes: ${host}:2181
+#      bindings:
+#        userOutput:
+#          destination: test
